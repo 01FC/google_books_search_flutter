@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_books_api/models/book.dart';
 import 'package:share/share.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../web_view_page.dart';
 
@@ -18,6 +19,14 @@ class DetailsBook extends StatefulWidget {
 class _DetailsBookState extends State<DetailsBook> {
   bool _showLongDescription = false;
 
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,20 +38,24 @@ class _DetailsBookState extends State<DetailsBook> {
             icon: Icon(Icons.public),
             onPressed: () {
               //TODO: implementar web view o abrir con el navegador
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => WebViewPage(
-                    url: widget.bookDetails.volumeInfo.previewLink,
-                  ),
-                ),
-              );
+              // Navigator.of(context).push(
+              //   MaterialPageRoute(
+              //     builder: (context) => WebViewPage(
+              //       url: widget.bookDetails.volumeInfo.previewLink,
+              //     ),
+              //   ),
+              // );
+              _launchURL(widget.bookDetails.volumeInfo.previewLink);
             },
           ),
           IconButton(
             tooltip: "Compartir",
             icon: Icon(Icons.share),
             onPressed: () {
-              // TODO: poder compartir
+              Share.share(
+                "Tengo el libro de ${widget.bookDetails.volumeInfo.title} para ti en el siguiente link ${widget.bookDetails.volumeInfo.previewLink}",
+                subject: "Mira este libro",
+              );
             },
           ),
         ],
